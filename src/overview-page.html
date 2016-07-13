@@ -15,6 +15,10 @@
 <link rel="import" href="filters-toolbar.html">
 <link rel="import" href="moment-js.html">
 
+<!-- Edit -->
+<link rel="import" href="custom/toolbar-panel.html">
+<!-- endEdit -->
+
 <dom-module id="overview-page">
   <template>
     <style>
@@ -104,6 +108,17 @@
         }
       }
     </style>
+		<!-- Edit -->
+    <style>
+			paper-icon-button:hover {
+				color: var(--paper-grey-500);
+				-moz-transition:    .5s;
+				-webkit-transition: .5s;
+				-o-transition:      .5s;
+				transition:         .5s;
+			}
+    </style>
+		<!-- endEdit -->
 
     <vaadin-pouchdb id="db" dbname="{{dbLocal}}" remote="{{dbRemote}}" data="{{expenses}}" status="{{status}}"></vaadin-pouchdb>
 
@@ -119,9 +134,14 @@
         <iron-icon id="sync" icon="notification:sync" hidden$="[[_hideSyncIcon(status)]]" title="Syncing…"></iron-icon>
 
         <span class="flex"></span>
-
+        
+				<!--- ->
         <paper-button on-tap="_openInfoWindow" class="about-button">Info</paper-button>
         <paper-button on-tap="_logout" class="logout-button">Logout</paper-button>
+				<!---->
+				<toolbar-panel on-logout="_logout" on-info="_openInfoWindow"
+											 on-settings="_openInfoWindow" on-account="_openInfoWindow"></toolbar-panel>
+				
       </paper-toolbar>
 
       <div class="content">
@@ -253,7 +273,7 @@
         },
 
         _update: function() {
-          console.log('update');
+          //console.log('update');
           this.debounce('update', function() {
             this._db.query();
           }.bind(this), 10);

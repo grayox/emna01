@@ -4,6 +4,10 @@
 <link rel="import" href="../bower_components/iron-a11y-keys/iron-a11y-keys.html">
 <link rel="import" href="../bower_components/iron-form/iron-form.html">
 
+<!-- Edit -->
+<link rel="import" href="custom/login-panel.html">
+<!-- endEdit -->
+
 <dom-module id="login-page">
   <style>
     :host {
@@ -55,6 +59,10 @@
       font-weight: 300;
       margin: 0 auto 16px;
       width: 300px;
+			/*Edit*/
+			@apply(--layout-horizontal);       /* Remove to left-align with form */
+			@apply(--layout-center-justified); /* Remove to left-align with form */
+			/*endEdit*/
     }
 
     .login {
@@ -81,18 +89,29 @@
       color: var(--primary-color);
     }
   </style>
+	<!-- Edit -->
+	<style>
+		login-panel {
+			--icon-color: white;
+			--icon-color-hover: var(--paper-grey-500); /*var(--primary-color);*/
+		}
+	</style>
+	<!-- endEdit -->
 
   <template>
     <iron-a11y-keys keys="enter" on-keys-pressed="_logIn"></iron-a11y-keys>
     <div id="header" class="header">
       <h1>Expense Manager</h1>
     </div>
+		<!--- ->
     <div class="login">
       <paper-input value={{username}} label="Username" name="username"></paper-input>
       <paper-input value="{{password}}" label="Password" name="password" type="password"></paper-input>
       <span class="error-message">[[errorMessage]]</span>
       <paper-button id="login-button" on-tap="_logIn" raised>Login</paper-button>
     </div>
+		<!---->
+		<login-panel></login-panel>
     <div id="footer">
       <span class="fork-me">
         Fork me on <a href="https://github.com/vaadin/expense-manager-demo">GitHub</a>
@@ -113,6 +132,7 @@
             type: Boolean,
             notify: true
           },
+					/** /
           username: {
             type: String,
             value: 'demo'
@@ -122,11 +142,21 @@
             value: 'demo'
           },
           errorMessage: String
+					/**/
         },
 
         _logIn: function() {
-          this.loggedIn = true;
-        }
+					this.set('loggedIn', true); // Edited this.loggedIn = true;
+        },
+				
+				// Edit
+				
+				listeners: {
+					'login': '_logIn',
+				},
+				
+				// endEdit
+				
       });
     })();
   </script>

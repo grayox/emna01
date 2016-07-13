@@ -9,15 +9,15 @@
 
   <link rel="shortcut icon" sizes="32x32" href="images/app-icon-32.png">
 
-  <meta name="theme-color" content="#33383a">
-  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#33383a" />
+  <link rel="manifest" href="manifest.json" />
 
   <!-- iOS -->
   <link rel="apple-touch-icon" href="images/app-icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
-  <meta name="apple-mobile-web-app-title" content="Expense Manager">
-
+  <meta name="apple-mobile-web-app-title" content="Expense Manager" />
+	
   <script type="text/javascript">
     // HTTPS redirect is borrowed from
     // https://github.com/PolymerElements/platinum-https-redirect/
@@ -44,7 +44,7 @@
     };
   </script>
 
-  <link id="bundle" rel="import" href="src/expense-app.html" async>
+	<link id="bundle" rel="import" href="src/expense-app.html" async>
 
   <style>
     html {
@@ -122,16 +122,16 @@
       }
     }
   </style>
-
+	
 </head>
 
 <body class="loading">
   <div id="loadingScreen">
     <div class="spinner"></div>
   </div>
-
+  
   <expense-app></expense-app>
-
+	
   <script>
     function registerServiceWorker() {
       // load pre-caching service worker
@@ -169,6 +169,7 @@
       document.head.appendChild(e);
     }
   </script>
+	
 </body>
 
 </html>
