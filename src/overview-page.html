@@ -129,18 +129,24 @@
     <iron-ajax id="ajax" handle-as="json" on-response="_handleBackendResponse" on-error="_handleBackendError"></iron-ajax>
 
     <paper-header-panel>
+			
       <paper-toolbar>
+				
         <h1>Expense Manager</h1>
         <iron-icon id="sync" icon="notification:sync" hidden$="[[_hideSyncIcon(status)]]" title="Syncing…"></iron-icon>
-
+        
+				<!--- ->
+				<paper-button on-tap="_show">Show</paper-button>
+				<!---->
         <span class="flex"></span>
         
 				<!--- ->
         <paper-button on-tap="_openInfoWindow" class="about-button">Info</paper-button>
         <paper-button on-tap="_logout" class="logout-button">Logout</paper-button>
 				<!---->
-				<toolbar-panel on-logout="_logout" on-info="_openInfoWindow"
-											 on-settings="_openInfoWindow" on-account="_openInfoWindow"></toolbar-panel>
+				<toolbar-panel on-logout="_logout" on-info="_openInfoWindow" user="[[user]]"
+											 on-settings="_openInfoWindow" on-account="_openInfoWindow">
+				</toolbar-panel>
 				
       </paper-toolbar>
 
@@ -174,7 +180,7 @@
           loggedIn: {
             type: Boolean,
             notify: true,
-            observer: '_loginStateChanged'
+            observer: '_loginStateChanged',
           },
           status: String,
           expenses: Array,
@@ -183,23 +189,28 @@
           attachments: Object,
           filters: {
             type: Object,
+            notify: true,
             value: function() {
               return {
                 start: '',
                 end: '',
-                merchant: ''
+                merchant: '',
               };
             },
-
-            notify: true
-          }
+          },
+					// Edit
+					user: {
+            type: Object,
+            notify: true,
+          },
+					// endEdit
         },
 
         listeners: {
-          'edit-expense': '_editExpense',
-          'expenses-updated': '_expensesUpdated',
-          'expense-saved': '_saveExpense',
-          'delete-expense': '_deleteExpense'
+          'expense-edit'   : '_expenseEdit'   ,
+          'expense-update' : '_expenseUpdate' ,
+          'expense-save'   : '_expenseSave'   ,
+          'expense-delete' : '_expenseDelete' ,
         },
 
         observers: [
@@ -312,7 +323,7 @@
           this._update();
         },
 
-        _editExpense: function(evt) {
+        _expenseEdit: function(evt) {
           if (evt && evt.detail) {
             var expense = evt.detail;
             this.$.expenseEditor.open(expense);
@@ -323,20 +334,21 @@
           return this.status !== 'syncing';
         },
 
-        _saveExpense: function(evt) {
+        _expenseSave: function(evt) {
           var expense = evt.detail;
           this._db.save(expense);
-          this.fire('expenses-updated');
+          this.fire('expense-update');
         },
-        _deleteExpense: function(evt) {
+				
+        _expenseDelete: function(evt) {
           var expense = evt.detail;
           this._db.remove(expense);
-          this.fire('expenses-updated', {
+          this.fire('expense-update', {
             reason: 'deleted'
           });
         },
 
-        _expensesUpdated: function(evt) {
+        _expenseUpdate: function(evt) {
           this.$.expenseEditor.close();
           if (evt.detail.reason === 'deleted') {
             this.$.saveNotification.text = 'Expense was deleted';
@@ -347,7 +359,7 @@
         },
 
         _logout: function() {
-          this.loggedIn = false;
+          this.set('loggedIn', false); // Edited: this.loggedIn = false;
         },
 
         _loginStateChanged: function() {
@@ -362,7 +374,14 @@
             this.loggedIn = false;
             this.loggedIn = true;
           }
-        }
+        },
+				
+				/** /
+				_show: function() {
+					console.log('user', this.user)
+				},
+				/**/
+				
       });
     })();
   </script>

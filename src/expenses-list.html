@@ -162,7 +162,7 @@
             var selection = grid.selection.selected();
             if (selection.length === 1) {
               grid.getItem(selection[0], function(err, item) {
-                this.fire('edit-expense', item);
+                this.fire('expense-edit', item);
               }.bind(this));
             }
           }.bind(this));
@@ -195,7 +195,7 @@
         },
 
         _showExpenseEditor: function() {
-          this.fire('edit-expense', {});
+          this.fire('expense-edit', {});
         },
 
         _filtersChanged: function() {

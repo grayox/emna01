@@ -6,6 +6,8 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 
+<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="custom-icons.html">
 
 <dom-module id="login-panel">
@@ -56,6 +58,20 @@
 		}
 	</style>
 	<template>
+		
+		<!---->
+		<firebase-app auth-domain="green-comet.firebaseapp.com"
+									database-url="https://green-comet.firebaseio.com/"
+									api-key="AIzaSyBOqawzjd994lNbsCTb6hzDZ7wI7yFNw5o">
+		</firebase-app>
+		<!---->
+		<firebase-auth id="auth"
+									 user="{{user}}"
+									 provider="[[provider]]"
+									 on-error="handleError">
+		</firebase-auth>
+		<!---->
+		
 		<div class="layout horizontal row wrap center-justified flex-center-align">
 			<template is="dom-repeat" items="[[buttons]]">
 			  <span>
@@ -81,12 +97,21 @@
 							return [
 								{ id: 'b01', name: 'Google'      , icon: 'google'      , provider: 'google'   },
 								{ id: 'b02', name: 'Facebook'    , icon: 'facebook'    , provider: 'facebook' },
-								{ id: 'b03', name: 'Gmail'       , icon: 'envelope'    , provider: 'google'   },
+							//{ id: 'b03', name: 'Gmail'       , icon: 'envelope'    , provider: 'google'   },
+								{ id: 'b03', name: 'Gmail'       , icon: 'gmail'       , provider: 'google'   },
 								{ id: 'b04', name: 'Twitter'     , icon: 'twitter'     , provider: 'twitter'  },
 								{ id: 'b05', name: 'Google Plus' , icon: 'google-plus' , provider: 'google'   },
 							];
 						},
 					},
+					provider: {
+						type: String,
+						notify: true,
+					},
+          user: {
+            type: Object,
+            notify: true,
+          },
 				},
 				/**/
 				_handleIn: function(e) {
@@ -103,7 +128,22 @@
 				/**/
 				login: function(e) {
 					var r = e.model.item; // console.log('r', r);//Polymer.dom(e).rootTarget.getAttribute('data-provider');
-					this.fire('login', r.provider);
+					this.set('provider', r.provider);
+					var provider = this.provider;
+					var auth = this.$.auth;
+					var _this = this;
+					auth.signInWithPopup(provider)
+		          .then(function(response) {
+						    //console.log('response', response);
+					      _this.fire('login', { 
+									provider: provider, 
+									response: response,
+								});
+					    })
+              .catch(function(error) {
+						    console.log('error', error);
+					    });
+					/**/
 				},
 				/**/
       });

@@ -130,7 +130,7 @@
         properties: {
           loggedIn: {
             type: Boolean,
-            notify: true
+            notify: true,
           },
 					/** /
           username: {
@@ -143,16 +143,28 @@
           },
           errorMessage: String
 					/**/
+					// Edit
+					user: {
+            type: Object,
+            notify: true,
+          },
+					// endEdit
         },
 
-        _logIn: function() {
-					this.set('loggedIn', true); // Edited this.loggedIn = true;
+        _logIn: function(e) {
+					this.set('loggedIn', true); // Edited: this.loggedIn = true;
+				  // Edit
+					//console.log('detail', e.detail);
+					this.set('user', e.detail.response.user);
+					//console.log('user', this.user);
+					//console.log('displayName', this.user.displayName);
+				  // endEdit
         },
 				
 				// Edit
 				
 				listeners: {
-					'login': '_logIn',
+					'login': '_logIn', // Responds to 'login' event from login-panel
 				},
 				
 				// endEdit

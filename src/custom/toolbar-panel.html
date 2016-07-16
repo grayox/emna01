@@ -71,6 +71,10 @@
 					<paper-tooltip>[[item.name]]</paper-tooltip>
 			  </span>
 			</template>
+			<span>
+			  <span>[[user.displayName]]</span>
+				<paper-tooltip>[[user.email]]</paper-tooltip>
+			</span>
 		</div>
 	</template>
 	
@@ -101,13 +105,17 @@
         is: 'toolbar-panel',
 				//
 				properties: {
+					user: {
+            type: Object,
+            notify: true
+          },
 					buttons: {
 						value: function(){
 							return [
-								{ id: 'b01', name: 'logout'   , icon: 'power-settings-new' },
-								{ id: 'b02', name: 'info'     , icon: 'info-outline'       },
-								{ id: 'b03', name: 'settings' , icon: 'settings'           },
-								{ id: 'b04', name: 'account'  , icon: 'account-circle'     },
+								{ id: 'b01' , name: 'logout'   , icon: 'power-settings-new' } ,
+								{ id: 'b02' , name: 'info'     , icon: 'info-outline'       } ,
+								{ id: 'b03' , name: 'settings' , icon: 'settings'           } ,
+								{ id: 'b04' , name: 'account'  , icon: 'account-circle'     } ,
 							];
 						},
 					},
@@ -128,6 +136,8 @@
 				action: function(e) {
 					var r = e.model.item; // console.log('r', r);//Polymer.dom(e).rootTarget.getAttribute('data-provider');
 					this.fire(r.name, r);
+					//console.log('user', this.user);
+					console.log('this', this);
 				},
 				/**/
       });
