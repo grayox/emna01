@@ -22,7 +22,8 @@
     "paper-dialog": "polymerelements/paper-dialog#^1.0.4",
     "iron-pages": "polymerelements/iron-pages#^1.0.7",
     "paper-tooltip": "PolymerElements/paper-tooltip#^1.1.2",
-    "polymerfire": "firebase/polymerfire#^0.9.4"
+    "polymerfire": "firebase/polymerfire#^0.9.4",
+    "app-storage": "PolymerElements/app-storage#^0.9.4"
   },
   "devDependencies": {
     "web-component-tester": "^4.0.0"

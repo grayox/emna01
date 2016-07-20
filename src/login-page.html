@@ -99,76 +99,24 @@
 	<!-- endEdit -->
 
   <template>
-    <iron-a11y-keys keys="enter" on-keys-pressed="_logIn"></iron-a11y-keys>
     <div id="header" class="header">
       <h1>Expense Manager</h1>
     </div>
-		<!--- ->
-    <div class="login">
-      <paper-input value={{username}} label="Username" name="username"></paper-input>
-      <paper-input value="{{password}}" label="Password" name="password" type="password"></paper-input>
-      <span class="error-message">[[errorMessage]]</span>
-      <paper-button id="login-button" on-tap="_logIn" raised>Login</paper-button>
-    </div>
-		<!---->
 		<login-panel></login-panel>
     <div id="footer">
-      <span class="fork-me">
+      <span class="left">
         Fork me on <a href="https://github.com/vaadin/expense-manager-demo">GitHub</a>
       </span>
-      <span class="built-with">
+      <span class="right">
         Built with <a href="https://vaadin.com/elements">Vaadin Elements</a>
       </span>
     </div>
   </template>
-
   <script>
     (function() {
       'use strict';
       Polymer({
-        is: 'login-page',
-        properties: {
-          loggedIn: {
-            type: Boolean,
-            notify: true,
-          },
-					/** /
-          username: {
-            type: String,
-            value: 'demo'
-          },
-          password: {
-            type: String,
-            value: 'demo'
-          },
-          errorMessage: String
-					/**/
-					// Edit
-					user: {
-            type: Object,
-            notify: true,
-          },
-					// endEdit
-        },
-
-        _logIn: function(e) {
-					this.set('loggedIn', true); // Edited: this.loggedIn = true;
-				  // Edit
-					//console.log('detail', e.detail);
-					this.set('user', e.detail.response.user);
-					//console.log('user', this.user);
-					//console.log('displayName', this.user.displayName);
-				  // endEdit
-        },
-				
-				// Edit
-				
-				listeners: {
-					'login': '_logIn', // Responds to 'login' event from login-panel
-				},
-				
-				// endEdit
-				
+        is: 'login-page',	
       });
     })();
   </script>

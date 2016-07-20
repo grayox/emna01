@@ -9,13 +9,17 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/vaadin-pouchdb/vaadin-pouchdb.html">
-<link rel="import" href="expense-editor.html">
+<link rel="import" href="item-editor.html">
 <link rel="import" href="info-dialog.html">
 <link rel="import" href="content-panel.html">
 <link rel="import" href="filters-toolbar.html">
 <link rel="import" href="moment-js.html">
 
 <!-- Edit -->
+<!--- ->
+<link rel="import" href="../bower_components/app-storage/app-indexeddb-mirror.html">
+<!---->
+<link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="custom/toolbar-panel.html">
 <!-- endEdit -->
 
@@ -119,21 +123,77 @@
 			}
     </style>
 		<!-- endEdit -->
+    
+		<!-- Edit -->
+		<!--- ->
+    <firebase-query id="query"
+										log
+										app-name="green-comet"
+										path="/expenses/[[user.uid]]"
+										data="[[expenses]]">
+    </firebase-query>
+		<!---->
+		<firebase-document id="document"
+											 log
+											 app-name="green-comet"
+										   path="/expenses/[[user.uid]]"
+											 data="[[expenses]]">
+    </firebase-document>
+    <!--- ->
+		<app-indexeddb-mirror id="indexeddb"
+													session="[[user.uid]]"
+													key="expenses"
+													data="{{expenses}}"
+													persisted-data="{{persistedData}}">
+    </app-indexeddb-mirror>
+		<!---->
+    <vaadin-pouchdb id="db"
+										dbname="{{dbLocal}}"
+										remote="{{dbRemote}}"
+										data="{{expenses}}"
+										status="{{status}}">
+		</vaadin-pouchdb>
+		<!--- ->
 
-    <vaadin-pouchdb id="db" dbname="{{dbLocal}}" remote="{{dbRemote}}" data="{{expenses}}" status="{{status}}"></vaadin-pouchdb>
+    <div class="notes">
+      <template is="dom-repeat" items="[[persistedData]]" as="note">
+        <na-note
+            id$="[[note.$key]]"
+            title="[[note.title]]"
+            body="[[note.body]]"
+            on-tap="edit">
+        </na-note>
+      </template>
+    </div>
+		
+		<!-- endEdit -->
 
-    <app-location route="{{route}}" use-hash-as-path></app-location>
-    <app-route route="{{route}}" pattern="/:dbId" data="{{routeData}}" tail="{{subroute}}">
+    <app-location route="{{route}}"
+									use-hash-as-path>
+		</app-location>
+    <app-route route="{{route}}"
+							 pattern="/:dbId"
+							 data="{{routeData}}"
+							 tail="{{subroute}}">
     </app-route>
 
-    <iron-ajax id="ajax" handle-as="json" on-response="_handleBackendResponse" on-error="_handleBackendError"></iron-ajax>
+    <iron-ajax id="ajax"
+							 handle-as="json"
+							 on-error="_handleBackendError"
+							 on-response="_handleBackendResponse">
+		</iron-ajax>
 
     <paper-header-panel>
 			
       <paper-toolbar>
 				
         <h1>Expense Manager</h1>
-        <iron-icon id="sync" icon="notification:sync" hidden$="[[_hideSyncIcon(status)]]" title="Syncing…"></iron-icon>
+				
+        <iron-icon id="sync"
+									 title="Syncing…"
+									 icon="notification:sync"
+									 hidden$="[[_hideSyncIcon(status)]]">
+				</iron-icon>
         
 				<!--- ->
 				<paper-button on-tap="_show">Show</paper-button>
@@ -144,23 +204,41 @@
         <paper-button on-tap="_openInfoWindow" class="about-button">Info</paper-button>
         <paper-button on-tap="_logout" class="logout-button">Logout</paper-button>
 				<!---->
-				<toolbar-panel on-logout="_logout" on-info="_openInfoWindow" user="[[user]]"
-											 on-settings="_openInfoWindow" on-account="_openInfoWindow">
+				<toolbar-panel user="[[user]]"
+											 on-logout="_logout"
+											 on-info="_openInfoWindow"
+											 on-account="_openInfoWindow"
+											 on-settings="_openInfoWindow">
 				</toolbar-panel>
 				
       </paper-toolbar>
 
       <div class="content">
-        <filters-toolbar id="filters-toolbar" total-owed="[[totalOwed]]" merchants="[[merchants]]" filters="{{filters}}" expenses="[[expenses]]"></filters-toolbar>
-        <content-panel id="content-panel" filters="{{filters}}" total-owed="[[totalOwed]]" expenses="[[expenses]]"></content-panel>
+        <filters-toolbar id="filters-toolbar"
+												 total-owed="[[totalOwed]]"
+												 merchants="[[merchants]]"
+												 filters="{{filters}}"
+												 expenses="[[expenses]]">
+				</filters-toolbar>
+        <content-panel id="content-panel"
+											 filters="{{filters}}"
+											 total-owed="[[totalOwed]]"
+											 expenses="[[expenses]]">
+				</content-panel>
       </div>
 
     </paper-header-panel>
 
-    <expense-editor id="expenseEditor" merchants="[[merchants]]" db="[[_db]]" route="{{subroute}}"></expense-editor>
-    <paper-toast id="saveNotification"></paper-toast>
+    <item-editor id="expenseEditor"
+								 merchants="[[merchants]]"
+								 db="[[_db]]"
+								 route="{{subroute}}">
+		</item-editor>
+    <paper-toast id="toast"></paper-toast>
     <info-dialog id="info"></info-dialog>
-    <iron-localstorage name="expense-manager-db-id" value="{{dbId}}"></iron-localstorage>
+    <iron-localstorage value="{{dbId}}"
+											 name="expense-manager-db-id">
+		</iron-localstorage>
   </template>
 
   <script>
@@ -251,7 +329,7 @@
         },
 
         _openInfoWindow: function() {
-          this.$.info.open();
+					this.$.info.open();
         },
 
         _getUniqueMerchants: function() {
@@ -290,9 +368,9 @@
           }.bind(this), 10);
         },
 
-        _handleBackendResponse: function(evt) {
+        _handleBackendResponse: function(e) {
           // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-          var rsp = evt.detail.response;
+          var rsp = e.detail.response;
           if (rsp && rsp.backend_db_id) {
             this.dbId = rsp.backend_db_id;
             this.set('route.path', '/' + this.dbId);
@@ -323,9 +401,9 @@
           this._update();
         },
 
-        _expenseEdit: function(evt) {
-          if (evt && evt.detail) {
-            var expense = evt.detail;
+        _expenseEdit: function(e) {
+          if (e && e.detail) {
+            var expense = e.detail;
             this.$.expenseEditor.open(expense);
           }
         },
@@ -334,28 +412,29 @@
           return this.status !== 'syncing';
         },
 
-        _expenseSave: function(evt) {
-          var expense = evt.detail;
+        _expenseSave: function(e) {
+          var expense = e.detail;
           this._db.save(expense);
           this.fire('expense-update');
         },
 				
-        _expenseDelete: function(evt) {
-          var expense = evt.detail;
+        _expenseDelete: function(e) {
+          var expense = e.detail;
           this._db.remove(expense);
           this.fire('expense-update', {
             reason: 'deleted'
           });
         },
 
-        _expenseUpdate: function(evt) {
+        _expenseUpdate: function(e) {
           this.$.expenseEditor.close();
-          if (evt.detail.reason === 'deleted') {
-            this.$.saveNotification.text = 'Expense was deleted';
+					var toast = this.$.toast;
+          if (e.detail.reason === 'deleted') {
+            toast.text = 'Item was deleted';
           } else {
-            this.$.saveNotification.text = 'Expense was saved';
+            toast.text = 'Item was saved';
           }
-          this.$.saveNotification.show();
+          toast.show();
         },
 
         _logout: function() {
@@ -375,12 +454,6 @@
             this.loggedIn = true;
           }
         },
-				
-				/** /
-				_show: function() {
-					console.log('user', this.user)
-				},
-				/**/
 				
       });
     })();

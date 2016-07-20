@@ -65,13 +65,16 @@
 		<div xclass="layout horizontal row wrap center-justified flex-center-align">
 			<template is="dom-repeat" items="[[buttons]]">
 			  <span>
-					<paper-icon-button icon="[[item.icon]]" id$="[[item.id]]"
-														 on-mouseover="_handleIn" on-mouseout="_handleOut"
-														 on-tap="action"></paper-icon-button>
+					<paper-icon-button id$="[[item.id]]"
+														 icon="[[item.icon]]"
+														 on-tap="action"
+														 on-mouseover="_handleIn"
+														 on-mouseout="_handleOut">
+					</paper-icon-button>
 					<paper-tooltip>[[item.name]]</paper-tooltip>
 			  </span>
 			</template>
-			<span>
+			<span on-tap="show">
 			  <span>[[user.displayName]]</span>
 				<paper-tooltip>[[user.email]]</paper-tooltip>
 			</span>
@@ -137,7 +140,10 @@
 					var r = e.model.item; // console.log('r', r);//Polymer.dom(e).rootTarget.getAttribute('data-provider');
 					this.fire(r.name, r);
 					//console.log('user', this.user);
-					console.log('this', this);
+				},
+				/**/
+				show: function() {
+					console.log('user', this.user);
 				},
 				/**/
       });

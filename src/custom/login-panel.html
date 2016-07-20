@@ -6,8 +6,6 @@
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-tooltip/paper-tooltip.html">
 
-<link rel="import" href="../../bower_components/polymerfire/firebase-app.html">
-<link rel="import" href="../../bower_components/polymerfire/firebase-auth.html">
 <link rel="import" href="custom-icons.html">
 
 <dom-module id="login-panel">
@@ -58,26 +56,15 @@
 		}
 	</style>
 	<template>
-		
-		<!---->
-		<firebase-app auth-domain="green-comet.firebaseapp.com"
-									database-url="https://green-comet.firebaseio.com/"
-									api-key="AIzaSyBOqawzjd994lNbsCTb6hzDZ7wI7yFNw5o">
-		</firebase-app>
-		<!---->
-		<firebase-auth id="auth"
-									 user="{{user}}"
-									 provider="[[provider]]"
-									 on-error="handleError">
-		</firebase-auth>
-		<!---->
-		
 		<div class="layout horizontal row wrap center-justified flex-center-align">
 			<template is="dom-repeat" items="[[buttons]]">
 			  <span>
-					<paper-icon-button icon="custom-icons:[[item.icon]]" id$="[[item.id]]"
-														 on-mouseover="_handleIn" on-mouseout="_handleOut"
-														 on-tap="login"></paper-icon-button>
+					<paper-icon-button id$="[[item.id]]"
+														 icon="custom-icons:[[item.icon]]"
+														 on-tap="login"
+														 on-mouseover="_handleIn"
+														 on-mouseout="_handleOut">
+					</paper-icon-button>
 					<paper-tooltip>login with [[item.name]]</paper-tooltip>
 			  </span>
 			</template>
@@ -90,7 +77,6 @@
       Polymer({
 				
         is: 'login-panel',
-				//
 				properties: {
 					buttons: {
 						value: function(){
@@ -104,48 +90,20 @@
 							];
 						},
 					},
-					provider: {
-						type: String,
-						notify: true,
-					},
-          user: {
-            type: Object,
-            notify: true,
-          },
 				},
-				/**/
 				_handleIn: function(e) {
 					var r = e.model.item;
 				  var s = this.$$('#' + r.id);
 					s.setAttribute('selected', true);
 				},
-				/**/
 				_handleOut: function(e) {
 					var r = e.model.item;
 				  var s = this.$$('#' + r.id);
 					s.setAttribute('selected', false);
 				},
-				/**/
 				login: function(e) {
-					var r = e.model.item; // console.log('r', r);//Polymer.dom(e).rootTarget.getAttribute('data-provider');
-					this.set('provider', r.provider);
-					var provider = this.provider;
-					var auth = this.$.auth;
-					var _this = this;
-					auth.signInWithPopup(provider)
-		          .then(function(response) {
-						    //console.log('response', response);
-					      _this.fire('login', { 
-									provider: provider, 
-									response: response,
-								});
-					    })
-              .catch(function(error) {
-						    console.log('error', error);
-					    });
-					/**/
+					this.fire('login', e.model.item.provider); 
 				},
-				/**/
       });
     })();
   </script>

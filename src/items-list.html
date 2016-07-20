@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="moment-js.html">
 
-<dom-module id="expenses-list">
+<dom-module id="items-list">
   <template>
     <style>
       :host {
@@ -113,25 +113,35 @@
     </style>
 
 
-    <vaadin-grid id="expenses" frozen-columns="1">
+		<!--- ->
+    Alternative to <vaadin-grid> might be <iron-data-table>
+    https://github.com/Saulis/iron-data-table
+    https://saulis.github.io/iron-data-table/demo/
+    http://plnkr.co/edit/2n0zru0F9c7s6IYVHHM1?p=preview
+		<!---->
+    <vaadin-grid id="expenses"
+								 frozen-columns="1">
       <table>
         <colgroup>
-          <col name="date" width="120" sortable sort-direction="desc" />
-          <col name="merchant" flex="1" min-width="145" sortable/>
-          <col name="total" width="90" sortable/>
-          <col name="status" width="120" sortable/>
-          <col name="comment" flex="2" min-width="260" sortable/>
+          <col sortable name="date"         width="120" sort-direction="desc" />
+          <col sortable name="merchant" min-width="145" flex="1"              />
+          <col sortable name="total"        width="90"                        />
+          <col sortable name="status"       width="120"                       />
+          <col sortable name="comment"  min-width="260" flex="2"              />
         </colgroup>
       </table>
     </vaadin-grid>
-    <paper-fab icon="add" on-tap="_showExpenseEditor" id="add-button"></paper-fab>
+    <paper-fab icon="add"
+							 id="add-button"
+							 on-tap="_showExpenseEditor">
+		</paper-fab>
   </template>
   <script>
     (function() {
       'use strict';
 
       Polymer({
-        is: 'expenses-list',
+        is: 'items-list',
 
         properties: {
           expenses: Array,
@@ -141,11 +151,11 @@
         },
 
         observers: [
-          '_update(filters, expenses)',
-          '_filtersChanged(filters.*)',
-          '_update(expenses.*)',
-          '_update(sortColumn)',
-          '_update(sortDirection)'
+          '_update(filters, expenses)' ,
+          '_filtersChanged(filters.*)' ,
+          '_update(expenses.*)'        ,
+          '_update(sortColumn)'        ,
+          '_update(sortDirection)'     ,
         ],
 
         ready: function() {

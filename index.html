@@ -17,7 +17,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black" />
   <meta name="apple-mobile-web-app-title" content="Expense Manager" />
-	
+
   <script type="text/javascript">
     // HTTPS redirect is borrowed from
     // https://github.com/PolymerElements/platinum-https-redirect/
@@ -44,7 +44,7 @@
     };
   </script>
 
-	<link id="bundle" rel="import" href="src/expense-app.html" async>
+	<link id="bundle" rel="import" href="src/app-main.html" async>
 
   <style>
     html {
@@ -108,11 +108,11 @@
       animation-name: none;
     }
 
-    .loading expense-app {
+    .loading app-main {
       opacity: 0;
     }
 
-    .ready expense-app {
+    .ready app-main {
       animation: fade-in 0.25s;
     }
 
@@ -122,7 +122,7 @@
       }
     }
   </style>
-	
+
 </head>
 
 <body class="loading">
@@ -130,8 +130,8 @@
     <div class="spinner"></div>
   </div>
   
-  <expense-app></expense-app>
-	
+  <app-main></app-main>
+
   <script>
     function registerServiceWorker() {
       // load pre-caching service worker
@@ -169,7 +169,7 @@
       document.head.appendChild(e);
     }
   </script>
-	
+
 </body>
 
 </html>
