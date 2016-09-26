@@ -21,7 +21,6 @@
 <!---->
 <link rel="import" href="../bower_components/polymerfire/polymerfire.html">
 <link rel="import" href="custom/toolbar-panel.html">
-<link rel="import" href="custom/app-behavior.html">
 <!-- endEdit -->
 
 <dom-module id="overview-page">
@@ -124,44 +123,53 @@
 			}
     </style>
 		<!-- endEdit -->
-
+    
 		<!-- Edit -->
-		<!---->
-    <firebase-document id="document"
-										   app-name="green-comet"
-											 xpath="[[editableItemId]]"
-											 data="{{editableItem}}"
-											 xsequentialTransactions
-											 log
-											 >
-    </firebase-document>
-		<!---->
-    <firebase-query id="query"
-										app-name="green-comet"
-										path="/users/[[user.uid]]/items"
-										data="{{items}}"
-										>
-    </firebase-query>
 		<!--- ->
+    <firebase-query id="query"
+										log
+										app-name="green-comet"
+										path="/expenses/[[user.uid]]"
+										data="[[expenses]]">
+    </firebase-query>
+		<!---->
+		<firebase-document id="document"
+											 log
+											 app-name="green-comet"
+										   path="/expenses/[[user.uid]]"
+											 data="[[expenses]]">
+    </firebase-document>
+    <!--- ->
 		<app-indexeddb-mirror id="indexeddb"
 													session="[[user.uid]]"
-													key="items"
-													data="{{items}}"
-													persisted-data="{{persistedItems}}">
+													key="expenses"
+													data="{{expenses}}"
+													persisted-data="{{persistedData}}">
     </app-indexeddb-mirror>
-		<!--- ->
+		<!---->
     <vaadin-pouchdb id="db"
 										dbname="{{dbLocal}}"
 										remote="{{dbRemote}}"
-										data="{{items}}"
+										data="{{expenses}}"
 										status="{{status}}">
 		</vaadin-pouchdb>
-		<!---->
-    <!-- endEdit -->
+		<!--- ->
+
+    <div class="notes">
+      <template is="dom-repeat" items="[[persistedData]]" as="note">
+        <na-note
+            id$="[[note.$key]]"
+            title="[[note.title]]"
+            body="[[note.body]]"
+            on-tap="edit">
+        </na-note>
+      </template>
+    </div>
+		
+		<!-- endEdit -->
 
     <app-location route="{{route}}"
-									use-hash-as-path
-									>
+									use-hash-as-path>
 		</app-location>
     <app-route route="{{route}}"
 							 pattern="/:dbId"
@@ -180,13 +188,15 @@
       <paper-toolbar>
 				
         <h1>Expense Manager</h1>
-				<!--- ->
+				
         <iron-icon id="sync"
 									 title="Syncing…"
 									 icon="notification:sync"
 									 hidden$="[[_hideSyncIcon(status)]]">
 				</iron-icon>
         
+				<!--- ->
+				<paper-button on-tap="_show">Show</paper-button>
 				<!---->
         <span class="flex"></span>
         
@@ -198,46 +208,36 @@
 											 on-logout="_logout"
 											 on-info="_openInfoWindow"
 											 on-account="_openInfoWindow"
-											 on-settings="_openInfoWindow"
-											 >
+											 on-settings="_openInfoWindow">
 				</toolbar-panel>
 				
       </paper-toolbar>
-		  
+
       <div class="content">
         <filters-toolbar id="filters-toolbar"
 												 total-owed="[[totalOwed]]"
 												 merchants="[[merchants]]"
 												 filters="{{filters}}"
-												 items="[[items]]"
-												 xitems="[[persistedItems]]"
-												 >
+												 expenses="[[expenses]]">
 				</filters-toolbar>
-				<content-panel id="content-panel"
+        <content-panel id="content-panel"
 											 filters="{{filters}}"
 											 total-owed="[[totalOwed]]"
-											 items="{{items}}"
-											 xitems="{{persistedItems}}"
-											 >
+											 expenses="[[expenses]]">
 				</content-panel>
       </div>
 
     </paper-header-panel>
 
-		<item-editor id="itemEditor"
+    <item-editor id="expenseEditor"
 								 merchants="[[merchants]]"
 								 db="[[_db]]"
-								 route="{{subroute}}"
-								 item="{{editableItem}}"
-                 on-close="commitChange"
-								 >								 
+								 route="{{subroute}}">
 		</item-editor>
-		
     <paper-toast id="toast"></paper-toast>
     <info-dialog id="info"></info-dialog>
     <iron-localstorage value="{{dbId}}"
-											 name="expense-manager-db-id"
-											 >
+											 name="expense-manager-db-id">
 		</iron-localstorage>
   </template>
 
@@ -248,7 +248,7 @@
         is: 'overview-page',
 
         properties: {
-          //_db: Object,
+          _db: Object,
           route: Object,
           routeData: Object,
           dbLocal: String,
@@ -258,10 +258,10 @@
           loggedIn: {
             type: Boolean,
             notify: true,
-            //observer: '_loginStateChanged',
+            observer: '_loginStateChanged',
           },
           status: String,
-          items: Array,
+          expenses: Array,
           totalOwed: Number,
           merchants: Array,
           attachments: Object,
@@ -284,43 +284,38 @@
 					// endEdit
         },
 
-				/**/
         listeners: {
-          'item-edit'   : '_itemEdit'   ,
-          'item-update' : '_itemUpdate' ,
-          'item-save'   : '_itemSave'   ,
-          'item-delete' : '_itemDelete' ,
+          'expense-edit'   : '_expenseEdit'   ,
+          'expense-update' : '_expenseUpdate' ,
+          'expense-save'   : '_expenseSave'   ,
+          'expense-delete' : '_expenseDelete' ,
         },
-				/**/
 
         observers: [
-          '_showInfoDialog(loggedIn, _showInfo)' ,
-          '_getUniqueMerchants(items.*)'         ,
-          '_calculateTotal(items.*)'             ,
-          '_route(route)'                        ,
+          '_showInfoDialog(loggedIn, _showInfo)',
+          '_getUniqueMerchants(expenses.*)',
+          '_calculateTotal(expenses.*)',
+          '_route(route)'
         ],
 
         ready: function() {
-					/** / // Adding <firebase-query path="[[user.uid]]" data="{{items}}"> causes this error
           Polymer.RenderStatus.afterNextRender(this, function() {
-            //this._setupDB();
-					  console.log('items', this.items);
+            this._setupDB();
           }.bind(this));
-          //this._db = this.$.db;
-					/**/
+          this._db = this.$.db;
         },
 
         _calculateTotal: function() {
-          if (this.items) {
-            var total = this.items.filter(function(item) {
-                return item.status === 'new';
-              }).map(function(item) {
-                return item.total;
+          if (this.expenses) {
+            var total = this.expenses.filter(function(exp) {
+                return exp.status === 'new';
+              }).map(function(exp) {
+                return exp.total;
               })
               .reduce(function(a, b) {
                 return a + b;
               }, 0);
-            //this.totalOwed = '$' + total.toFixed(2);
+            this.totalOwed = '$' + total.toFixed(2);
           }
         },
 
@@ -338,8 +333,8 @@
         },
 
         _getUniqueMerchants: function() {
-          if (this.items) {
-            this.merchants = this.items.map(function(e) {
+          if (this.expenses) {
+            this.merchants = this.expenses.map(function(e) {
               return e.merchant;
             }).filter(function(val, index, self) {
               return self.indexOf(val) === index;
@@ -347,13 +342,11 @@
           }
         },
 
-        /** / // Adding <firebase-query path="[[user.uid]]" data="{{items}}"> causes this error
-				
         _teardownDB: function() {
           this.dbId = this.dbLocal = this.dbRemote = null;
           this.set('route.path', '');
         },
-				
+
         _setupDB: function() {
           if (this.routeData && this.routeData.dbId) {
             this.dbId = this.routeData.dbId;
@@ -367,7 +360,6 @@
           }
           this.$.ajax.generateRequest();
         },
-        /** /
 
         _update: function() {
           //console.log('update');
@@ -378,31 +370,29 @@
 
         _handleBackendResponse: function(e) {
           // jscs:disable requireCamelCaseOrUpperCaseIdentifiers
-          var r = e.detail.response;
-          if (r && r.backend_db_id) {
-            this.dbId = r.backend_db_id;
+          var rsp = e.detail.response;
+          if (rsp && rsp.backend_db_id) {
+            this.dbId = rsp.backend_db_id;
             this.set('route.path', '/' + this.dbId);
 
             // Setting these, makes couchdb connect to local & remote DB and start syncing
             this.dbLocal = 'db_' + this.dbId;
-            this.dbRemote = r.couchdb_db_url;
+            this.dbRemote = rsp.couchdb_db_url;
 
-            if (r.new_db) {
+            if (rsp.new_db) {
               this._showInfo = true;
             }
 
             // We update the entire UI on any change for simplicity.
-						/** / // Removing <vaadin-pouchdb> causes this error
             this._db.changes(function() {
               this._update();
             }.bind(this));
-						/** /
             // First hit
             this._update();
           } else {
             this.dbId = null;
             this.set('route.path', '');
-            //this._setupDB();
+            this._setupDB();
           }
         },
 
@@ -410,51 +400,34 @@
           // Make sure we at least populate from our local DB if the backend is unavailable
           this._update();
         },
-				/**/
+
+        _expenseEdit: function(e) {
+          if (e && e.detail) {
+            var expense = e.detail;
+            this.$.expenseEditor.open(expense);
+          }
+        },
 
         _hideSyncIcon: function() {
           return this.status !== 'syncing';
         },
 
-        _itemEdit: function(e) {
-          if (e && e.detail) {
-            var item = e.detail;
-            this.$.itemEditor.open(item); // per Vaadin ExpenseManager
-						// This line is changeover from Vaadin ExpenseManager (above) to PolyFire (below)
-						//this.edit(item); // per PolyFire
-          }
-        },
-
-				// Replace save, delete and update functions from ExpenseManager with PolyFire/behavior.html
-				/** /
-				
-        _itemSave: function(e) {
-				  /** / // Remove to use <firebase-document>
-          var item = e.detail; // This still works; opting for editableItem
-					console.log( 'item'           ,              item   );
-          this._db.save(data);
-					/** /
-					// Edit
-          var path = 'users/' + this.user.uid;
-					var doc = this.$.document;
-					console.log( 'editableItem'   , this.editableItem   );
-					console.log( 'path'           , path                );
-					doc.save(path);
-					console.log( 'editableItemId' , this.editableItemId );
-					// endEdit
-          this.fire('item-update');
+        _expenseSave: function(e) {
+          var expense = e.detail;
+          this._db.save(expense);
+          this.fire('expense-update');
         },
 				
-        _itemDelete: function(e) {
-          var item = e.detail;
-          this._db.remove(item);
-          this.fire('item-update', {
+        _expenseDelete: function(e) {
+          var expense = e.detail;
+          this._db.remove(expense);
+          this.fire('expense-update', {
             reason: 'deleted'
           });
         },
 
-        _itemUpdate: function(e) {
-          this.$.itemEditor.close();
+        _expenseUpdate: function(e) {
+          this.$.expenseEditor.close();
 					var toast = this.$.toast;
           if (e.detail.reason === 'deleted') {
             toast.text = 'Item was deleted';
@@ -463,54 +436,24 @@
           }
           toast.show();
         },
-				/**/
 
         _logout: function() {
           this.set('loggedIn', false); // Edited: this.loggedIn = false;
         },
 
-				/** /
         _loginStateChanged: function() {
           if (!this.loggedIn) {
             this._teardownDB();
           }
         },
-				/**/
 
         _route: function() {
           var id = this.route.path.replace(/^\//, '');
           if (id && id !== this.dbId) {
-            this.set('loggedIn', false); // this.loggedIn = false;
-            this.set('loggedIn', true ); // this.loggedIn = true;
+            this.loggedIn = false;
+            this.loggedIn = true;
           }
         },
-				
-				// Edit // Source: PolyFire/app.html
-				
-        behaviors: [
-          Polymer.AppBehavior ,
-        ],
-
-				get isEditable() {
-					return this.online;
-				},
-
-				get itemsPath() {
-					//return '/items/' + this.user.uid;
-					return [ '/users' , this.user.uid , 'items' ].join('/');
-				},
-
-				toEditableId: function(itemId) {
-					return [ this.itemsPath , itemId ].join('/');
-				},
-        
-				/** /
-        signIn: function() {
-          this.$.auth.signInWithPopup();
-        },
-				/**/
-				
-				// endEdit
 				
       });
     })();

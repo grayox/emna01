@@ -166,26 +166,22 @@
 
     <app-route route="{{route}}"
 							 pattern="/:action"
-							 data="{{routeData}}"
-							 >
+							 data="{{routeData}}">
 		</app-route>
 
     <iron-media-query query="(min-height: 900px)"
-											query-matches="{{tallWindow}}"
-											>
+											query-matches="{{tallWindow}}">
 		</iron-media-query>
     <paper-dialog modal
 									id="dialog"
 									no-cancel-on-esc-key="false"
-									opened="{{_showDialog(route.path)}}"
-									>
+									opened="{{_showDialog(route.path)}}">
       <div class="main-layout">
         <h2>{{caption}}</h2>
         <span class="flex"></span>
         <paper-icon-button icon="close"
 													 on-tap="close"
-													 class="close-button self-start"
-													 >
+													 class="close-button self-start">
 				</paper-icon-button>
       </div>
 
@@ -193,41 +189,37 @@
         <div class="form">
           <form is="iron-form" id="form">
             <iron-a11y-keys keys="enter"
-														on-keys-pressed="_save"
-														>
+														on-keys-pressed="_save">
 						</iron-a11y-keys>
             <vaadin-combo-box name="merchant"
 															id="merchant"
 															items="[[merchants]]"
-															value="{{item.merchant}}"
+															value="{{expense.merchant}}"
 															label="Merchant"
 															allow-custom-value
-															required
-															>
+															required>
 						</vaadin-combo-box>
             <paper-input name="total"
 												 id="total"
-												 value="{{item.total}}"
+												 value="{{expense.total}}"
 												 type="number"
 												 max="9999"
 												 label="Total"
 												 required
-												 step="any"
-												 >
+												 step="any">
               <div prefix>$</div>
             </paper-input>
+
             <vaadin-date-picker label="Date"
-																value="{{item.date}}"
+																value="{{expense.date}}"
 																id="date"
 																name="date"
-																required
-																>
+																required>
 						</vaadin-date-picker>
             <paper-textarea id="comment"
 														name="comment"
 														label="Comment"
-														value="{{item.comment}}"
-														>
+														value="{{expense.comment}}">
 						</paper-textarea>
           </form>
         </div>
@@ -236,26 +228,21 @@
 												 accept="image/*"
 												 max-files="1"
 												 on-upload-before="_handleUpload"
-												 required
-												 >
+												 required>
             <div class="file-list">
               <div class="receipt-wrapper">
                 <img src$="[[_receiptURL]]"
 										 alt="Receipt"
-										 hidden$="[[!_showReceipt(item._attachments.*)]]"
-										 >
+										 hidden$="[[!_showReceipt(expense._attachments.*)]]">
               </div>
             </div>
           </vaadin-upload>
-					<button on-tap="show">Click here to show</button>
         </div>
       </div>
       <div class="buttons-layout">
-				<!-- _save , _delete > ExpMgr   ( > overview-page ) 
-          >>  save ,  delete > PolyFire ( > app-behavior  ) -->
-        <paper-button on-tap="save"   class="save-button"   raised     >Save</paper-button>
-        <paper-button on-tap="close"  class="cancel-button"            >Cancel</paper-button>
-				<paper-button on-tap="delete" class="delete-button" id="delete">Delete</paper-button>
+        <paper-button on-tap="_save"   class="save-button"   raised     >Save</paper-button>
+        <paper-button on-tap="close"   class="cancel-button"            >Cancel</paper-button>
+				<paper-button on-tap="_delete" class="delete-button" id="delete">Delete</paper-button>
       </div>
       <span id="error" hidden$="[[!errorMessage]]">{{errorText}}</span>
     </paper-dialog>
@@ -271,7 +258,7 @@
         properties: {
           service: Object,
           merchants: Array,
-          item: {
+          expense: {
             type: Object,
             notify: true,
             value: function() {
@@ -280,7 +267,7 @@
           },
           caption: {
             type: String,
-            computed: '_getCaption(item)'
+            computed: '_getCaption(expense)'
           },
           errorText: String,
           db: Object,
@@ -290,22 +277,14 @@
             value: 'images/default-receipt.png'
           },
           route: Object,
-          routeData: Object,
-					// Edit PolyFire/na-editor.html
-					opened: {
-						type: Boolean,
-						reflectToAttribute: true,
-						readOnly: true,
-						value: false,
-					},
-					// endEdit
+          routeData: Object
         },
 
-        observers: ['_updateReceiptURL(item._attachments.*)'],
+        observers: ['_updateReceiptURL(expense._attachments.*)'],
 
         ready: function() {
-          this.$.upload.set('i18n.dropFiles.one' , 'Drop receipt here...');
-          this.$.upload.set('i18n.addFiles.one'  , 'Select receipt'      );
+          this.$.upload.set('i18n.dropFiles.one', 'Drop receipt here...');
+          this.$.upload.set('i18n.addFiles.one', 'Select receipt');
         },
 
         attached: function() {
@@ -322,29 +301,29 @@
         },
 
         _showDialog: function() {
-          return this.item && this.route.path && this.route.path === '/edit';
+          return this.expense && this.route.path && this.route.path === '/edit';
         },
 
-        _getCaption: function(item) {
-					if (item.id/*$key*/) {
-            return 'Edit Item';
+        _getCaption: function(expense) {
+          if (expense._id) {
+            return 'Edit Expense';
           } else {
-            return 'Add Item';
+            return 'Add Expense';
           }
         },
 
         _showReceipt: function() {
-          return this.item._id && this.item.status !== 'new' ||
-            this.item._attachments && this.item._attachments.receipt;
+          return this.expense._id && this.expense.status !== 'new' ||
+            this.expense._attachments && this.expense._attachments.receipt;
         },
 
         _updateReceiptURL: function() {
-          if (this.item._attachments && this.item._attachments.receipt) {
-            if (this.item._attachments.receipt.data instanceof File ||  
-              this.item._attachments.receipt.data instanceof Blob) {
-              this._receiptURL = URL.createObjectURL(this.item._attachments.receipt.data);
+          if (this.expense._attachments && this.expense._attachments.receipt) {
+            if (this.expense._attachments.receipt.data instanceof File ||  
+              this.expense._attachments.receipt.data instanceof Blob) {
+              this._receiptURL = URL.createObjectURL(this.expense._attachments.receipt.data);
             } else {
-              this.db.getAttachment(this.item._id, 'receipt')
+              this.db.getAttachment(this.expense._id, 'receipt')
                 .then(function(blob) {
                   this._receiptURL = URL.createObjectURL(blob);
                 }.bind(this))
@@ -359,7 +338,7 @@
         },
 
         listeners: {
-          'iron-form-invalid': '_formInvalid' ,
+          'iron-form-invalid': '_formInvalid'
         },
 
         // Read canvas content and returns a Blob.
@@ -419,8 +398,8 @@
         _handleUpload: function(e) {
           var file = e.detail.file;
           this._resizeImage(file, function(data) {
-            this.item._attachments = this.item._attachments || {};
-            this.set('item._attachments.receipt', {
+            this.expense._attachments = this.expense._attachments || {};
+            this.set('expense._attachments.receipt', {
               type: 'image/jpeg',
               data: data
             });
@@ -430,105 +409,12 @@
           e.preventDefault();
         },
 
-				open: function(item) {
-					
-					console.log('item', item);
-					
-					// Edit // PolyFire/na-editor.html
-					/** /
-          this._setOpened(true);
-				  this.__editedItem = item;
-				  if (!item) {
-					  this.create();
-				  } else {
-					  //item.style.opacity = 0;
-					  //this.transitionInFrom(item.getBoundingClientRect());
-			  	// endEdit
-
-						/**/
-						// Edit
-						if (item.$key) {
-							item.id = item.$key
-							item._id = item.$key;
-							delete item.$key;
-						}
-						// endEdit
-						/**/
-
-						/**/
-						// Create a copy of the item to be edited so we don't automatically flush changes to db
-						this.item = JSON.parse(JSON.stringify(item));
-					  console.log('this.item', this.item);
-
-						// File objects don't survive the JSON dance, so copy that over manually
-						if (item._attachments) {
-							this.set('item._attachments', item._attachments);
-						}
-						/**/
-
-						this.$.upload.files = [];
-
-						if (!item.status) {
-							this.item.status = 'new';
-						}
-
-						if (item.total) {
-							//this.$.total.value = item.total.toFixed(2);
-						}
-
-						this.$.delete.hidden = !(this.item._id && this.item.status === 'new');
-
-						// Ensure that the scroll is returned to top on mobile
-						this.async(function() {
-							this.$.dialog.scrollTop = 0;
-						});
-
-						this.set('route.path', '/edit');
-					//}
-
-					/** / // Original from ExpMgr
-					close: function(detail) {
-						var _this = this;
-						this.async(function() {
-							// Prevent tap from leaking through to underlying page
-							_this.set('route.path', '');
-							_this.item = {};
-						}, 100);
-						this.fire('close', detail, { bubbles: false });
-						this.transitionOut().then(function() {
-							Polymer.dom(this).classList.remove('open');
-							this._setOpened(false);
-						}.bind(this));
-					},
-					/**/
-
-				},
-				
-				/**/ // Customized by combining from ExpMgr + PolyFire
-        close: function(e) {
-					this.transitionOut().then(function() {
-						var _this = this;
-						this.async(function() {
-							// Prevent tap from leaking through to underlying page
-							_this.set('route.path', '');
-							_this.item = {};
-						}, 100);
-						this.fire('close', e, { bubbles: false });
-						Polymer.dom(this).classList.remove('open');
-						//this._setOpened(false);
-					}.bind(this));
-			  },
-				/** /
-				
-        // Replace save, delete and update functions from ExpenseManager with PolyFire/behavior.html
-				/** /
-        
         _save: function() {
           this.$.error.innerText = '';
           var form = this.$.form;
           if (form.validate()) {
-            this.item.total = parseFloat(this.item.total);
-            this.fire('item-save', this.item);
+            this.expense.total = parseFloat(this.expense.total);
+            this.fire('expense-save', this.expense);
           } else {
             console.log('Form validation failed');
             this.$.dialog.scrollTop = 0;
@@ -536,106 +422,47 @@
           }
         },
 
-				_delete: function() {
-          this.fire('item-delete', this.item);
+        open: function(expense) {
+
+          // Create a copy of the expense to be edited so we don't automatically flush changes to db
+          this.expense = JSON.parse(JSON.stringify(expense));
+          // File objects don't survive the JSON dance, so copy that over manually
+          if (expense._attachments) {
+            this.set('expense._attachments', expense._attachments);
+          }
+
+          this.$.upload.files = [];
+
+          if (!expense.status) {
+            this.expense.status = 'new';
+          }
+
+          if (expense.total) {
+            this.$.total.value = expense.total.toFixed(2);
+          }
+
+          this.$.delete.hidden = !(this.expense._id && this.expense.status === 'new');
+
+          // Ensure that the scroll is returned to top on mobile
+          this.async(function() {
+            this.$.dialog.scrollTop = 0;
+          });
+
+          this.set('route.path', '/edit');
         },
-				/**/
-				
-				// Edit // Import from PolyFire/na-editor.html
-				
-				save: function() {
-					this.close('save');
-				},
 
-				delete: function() {
-					this.close('delete');
-				},
+        close: function() {
+          var _this = this;
+          this.async(function() {
+            // Prevent tap from leaking through to underlying page
+            _this.set('route.path', '');
+            _this.expense = {};
+          }, 100);
+        },
 
-				/** / // Originally from PolyFire, now customized combining ExpMgr
-				close: function(detail) {
-					if (this.__editedItemElement) {
-						this.__editedItemElement.style.opacity = 1;
-						this.__editedItemElement = null;
-					}
-
-					this.fire('close', detail, { bubbles: false });
-					/** /
-					this.transitionOut().then(function() {
-						Polymer.dom(this).classList.remove('open');
-						//this._setOpened(false);
-					}.bind(this));
-					/** /
-				},
-				/** /
-
-				create: function() {
-					this._setOpened(true);
-					this.item = { 
-						comment  : '' ,
-						date     : '' ,
-						merchant : '' ,
-						status   : '' ,
-						total    : '' ,
-					};
-					this.transitionInFrom(this.getBoundingClientRect());
-				},
-				/**/
-				
-				transitionInFrom: function(rect) {
-					var targetRect = this.getBoundingClientRect();
-					var targetLeft = targetRect.width > 500 ?
-							targetRect.width / 2 - 240 : 10;
-					var targetWidth = targetRect.width > 500 ?
-							'480px' : 'calc(100vw - 20px)'
-					var dialogAnimation = this.$.dialog.animate([{
-						transform: `translate(${rect.left}px,${rect.top - 46}px)`,
-						width: `${rect.width}px`,
-						easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-					}, {
-						transform: `translate(${targetLeft}px, 0px)`,
-						width: targetWidth
-					}], 500);
-
-					var backgroundAnimation = this.$.background.animate([{
-						transform: `translate(${rect.left + rect.width / 2 - 128}px, ${rect.top - 46 + rect.height / 2 - 128}px) scale(0.1)`,
-						easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-					}, {
-						transform: `scale(${targetRect.width / 256 * 4})`
-					}], 800);
-
-					dialogAnimation.addEventListener('finish', function() {
-						Polymer.dom(this).classList.add('open');
-					}.bind(this));
-				},
-
-				transitionOut: function() {
-					var animation = this.animate([{
-						opacity: 1,
-						easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-					}, {
-						opacity: 0
-					}], 300);
-
-					this.$.dialog.animate([{
-						transform: 'translateY(0) scale(1)',
-						opacity: 1,
-						easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
-					}, {
-						transform: 'translateY(10px) scale(0.9)',
-						opacity: 0
-					}], 500);
-
-					return new Promise(function(resolve) {
-						animation.addEventListener('finish', resolve);
-					}.bind(this));
-				},
-				
-				// endEdit
-				
-				show: function() {
-					console.log('item', this.item);
-				},
-				
+        _delete: function() {
+          this.fire('expense-delete', this.expense);
+        }
       });
     })();
   </script>

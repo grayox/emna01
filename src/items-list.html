@@ -1,40 +1,11 @@
-<!-- Uses <iron-data-table> -->
-
 <link rel="import" href="../bower_components/polymer/polymer.html">
-<!--- ->
-Replaced <vaadin-grid> (https://github.com/vaadin/vaadin-grid)
-with <iron-data-table> (https://github.com/Saulis/iron-data-table)
 <link rel="import" href="../bower_components/vaadin-grid/vaadin-grid.html">
-<!---->
-<link rel="import" href="../bower_components/iron-data-table/iron-data-table.html">
-<link rel="import" href="../bower_components/iron-data-table/default-styles.html">
 <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="moment-js.html">
 
-<link rel="import" href="custom/row-detail.html">
-
-<!-- Edit -->
-<link rel="import" href="custom/styles/grid-1.html">
-<!-- endEdit -->
-
-<!--- ->
-Examples: http://jsbin.com/xxxxxxxxxx/1/edit?html,output
-          torizajafe ... Hello world
-          yexokijavo ... CSS import
-          fanotababa ... Row details
-          boxiyafoya ... Edit row details
-          sevafikolu ... Edit row details using sub-element
-          zukahavoto ... Reset selection 01
-          ducayiwake ... Reset selection 02
-          xucemijada ... Reset selection 03 http://stackoverflow.com/q/38707525/1640892
-          dubuyoy    ... Reset selection 04 http://stackoverflow.com/a/38712926/1640892
-          fewihuxozu ... Select row, prevent deselection | Clone for documentation purposes
-<!---->
-
 <dom-module id="items-list">
   <template>
-		<style include="grid-1"></style><!-- Alternate styling based on: https://saulis.github.io/iron-data-table/demo/styling.html -->
     <style>
       :host {
         position: relative;
@@ -69,22 +40,22 @@ Examples: http://jsbin.com/xxxxxxxxxx/1/edit?html,output
         }
       }
 
-      #items {
+      #expenses {
         flex: 1;
         color: var(--primary-text-color);
       }
 
       @media (max-width: 1124px) {
-        #items {
+        #expenses {
           font-size: 15px;
         }
       }
-			/** /
-      #items /deep/ thead.vaadin-grid-header {
+
+      #expenses /deep/ thead.vaadin-grid-header {
         box-shadow: 0 -9px 2px 10px rgba(0, 0, 0, 0.1), 0 -8px 3px 10px rgba(204, 204, 204, 0.20);
       }
 
-      #items /deep/ thead.vaadin-grid-header th {
+      #expenses /deep/ thead.vaadin-grid-header th {
         text-transform: uppercase;
         font-size: 12px;
         font-weight: 500;
@@ -119,7 +90,7 @@ Examples: http://jsbin.com/xxxxxxxxxx/1/edit?html,output
         box-sizing: border-box;
       }
 
-      #items /deep/ .vaadin-grid-header [class*="sort-"]:after {
+      #expenses /deep/ .vaadin-grid-header [class*="sort-"]:after {
         content: "";
         border-width: 5px;
         border-style: solid;
@@ -130,77 +101,40 @@ Examples: http://jsbin.com/xxxxxxxxxx/1/edit?html,output
         margin: 0 10px;
       }
 
-      #items /deep/ .vaadin-grid-header.vaadin-grid .sort-desc.vaadin-grid:after {
+      #expenses /deep/ .vaadin-grid-header.vaadin-grid .sort-desc.vaadin-grid:after {
         border-top-color: var(--accent-color);
         transform: translateY(25%);
       }
 
-      #items /deep/ .vaadin-grid-header.vaadin-grid .sort-asc.vaadin-grid:after {
+      #expenses /deep/ .vaadin-grid-header.vaadin-grid .sort-asc.vaadin-grid:after {
         border-bottom-color: var(--accent-color);
         transform: translateY(-25%);
       }
-			/**/
-    </style>
-    <style>
-      iron-data-table data-table-row-detail {
-        height: 150px;
-      }
-      iron-data-table data-table-row-detail .detail {
-        width: 100%;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        border: 2px solid #aaa;
-      }
     </style>
 
 
-		<iron-data-table id="grid1"
-										 items="[[items]]"
-										 xdetails-enabled
-										 selection-enabled
-										 selected-item="{{selectedItem}}"
-										 on-deselecting-item="_deselecting"
-										 >
-			
-			<template is="row-detail">
-				<div class="detail">
-					<row-detail item="{{item}}"
-											tabindex="0"
-											>
-					</row-detail><!-- tabindex="0" is required workaround per http://stackoverflow.com/a/38693110/1640892 -->
-				</div>
-			</template>
-			
-			<data-table-column name="Comment"
-												 xwidth="50px"
-												 xflex="0"
-												 filter-by="comment"
-												 sort-by="comment"
-												 >
-				<template>[[item.comment]]</template>
-			</data-table-column>
-			<data-table-column name="Total"
-												 filter-by="total"
-												 sort-by="total"
-												 >
-				<template>[[item.total]]</template>
-			</data-table-column>
-			<data-table-column name="Merchant"
-												 >
-				<template>[[item.merchant]]</template>
-			</data-table-column>
-		</iron-data-table>
+		<!--- ->
+    Alternative to <vaadin-grid> might be <iron-data-table>
+    https://github.com/Saulis/iron-data-table
+    https://saulis.github.io/iron-data-table/demo/
+    http://plnkr.co/edit/2n0zru0F9c7s6IYVHHM1?p=preview
 		<!---->
-    [[_computeSelectedStr(selectedItem)]]
-		<!---->
+    <vaadin-grid id="expenses"
+								 frozen-columns="1">
+      <table>
+        <colgroup>
+          <col sortable name="date"         width="120" sort-direction="desc" />
+          <col sortable name="merchant" min-width="145" flex="1"              />
+          <col sortable name="total"        width="90"                        />
+          <col sortable name="status"       width="120"                       />
+          <col sortable name="comment"  min-width="260" flex="2"              />
+        </colgroup>
+      </table>
+    </vaadin-grid>
     <paper-fab icon="add"
 							 id="add-button"
-							 on-tap="_showItemEditor"
-							 xon-tap="show">
+							 on-tap="_showExpenseEditor">
 		</paper-fab>
-		<!---->
-
   </template>
   <script>
     (function() {
@@ -208,52 +142,160 @@ Examples: http://jsbin.com/xxxxxxxxxx/1/edit?html,output
 
       Polymer({
         is: 'items-list',
-				properties: {
-          items: Array,
-          filters: Object,
-          selectedItem: {
-						type: Object,
-						notifies: true,
-					},
+
+        properties: {
+          expenses: Array,
           sortColumn: String,
           sortDirection: String,
-				},
-				
-				/**/
-				observers: [
-          '_selectedItemChanged(selectedItem)' ,
-				],
-				/**/
-				
-        _deselecting: function(e) {
-          e.preventDefault();
-					this._selectedItemChanged(e.detail.item);
+          filters: Object
         },
 
-				_selectedItemChanged: function(ob) {
-					//console.log('selectedItem', ob);
-					this.fire('item-edit', ob);
-				},
+        observers: [
+          '_update(filters, expenses)' ,
+          '_filtersChanged(filters.*)' ,
+          '_update(expenses.*)'        ,
+          '_update(sortColumn)'        ,
+          '_update(sortDirection)'     ,
+        ],
 
-				/**/
-				
-        _showItemEditor: function() {
-          this.fire('item-edit', {});
+        ready: function() {
+          var grid = this.$.expenses;
+
+          grid.addEventListener('sort-order-changed', function() {
+            if (grid.size > 0) {
+              grid.scrollToStart();
+              this._update();
+            }
+          }.bind(this));
+
+          grid.addEventListener('selected-items-changed', function() {
+            var selection = grid.selection.selected();
+            if (selection.length === 1) {
+              grid.getItem(selection[0], function(err, item) {
+                this.fire('expense-edit', item);
+              }.bind(this));
+            }
+          }.bind(this));
+
+          grid.cellClassGenerator = function(cell) {
+            if (cell.columnName === 'status') {
+              return 'status-' + cell.data.replace(/ /g, '-').toLowerCase();
+            } else if (cell.columnName === 'total') {
+              return 'total';
+            } else if (cell.columnName === 'comment') {
+              return 'comment';
+            }
+          };
+
+          grid.then(function() {
+            grid.columns[0].renderer = function(cell) {
+              cell.element.innerHTML = moment(cell.data).format('MM/DD/YYYY');
+            };
+            grid.columns[2].renderer = function(cell) {
+              cell.element.innerHTML = '$' + cell.data.toFixed(2);
+            };
+            grid.columns[3].renderer = function(cell) {
+              var status = cell.data.replace(/_/g, ' ');
+              status = status.charAt(0).toUpperCase() + status.slice(1);
+              cell.element.textContent = status;
+            };
+
+            grid.header.getCell(0, 2).className = 'total';
+          });
         },
-				
-				reset: function() {
-					this.set('selectedItem', null);
-				},
 
-				_computeSelectedStr: function(ob) {
-				  return JSON.stringify(ob);
+        _showExpenseEditor: function() {
+          this.fire('expense-edit', {});
         },
 
-				show: function() {
-					console.log('selectedItem', this.selectedItem);
-				},
+        _filtersChanged: function() {
+          if (this.$.expenses.items) {
+            this.debounce('_filtersChanged', function() {
+              this._update();
+            }, 300);
+          }
+        },
 
-				
+        _update: function() {
+          if (!this.filters) {
+            return;
+          }
+          var grid = this.$.expenses;
+          var merchant = this.filters.merchant;
+          var min = this.filters.min;
+          var max = this.filters.max;
+          var status = this.filters.status;
+          var start = this.filters.start;
+          var end = this.filters.end;
+          var sort;
+          var direction;
+          if (grid.sortOrder && grid.sortOrder[0]) {
+            sort = grid.columns[grid.sortOrder[0].column].name;
+            direction = grid.sortOrder[0].direction;
+          }
+
+          // Filter
+          var result = this.expenses
+            .filter(function(expense) {
+              return !(merchant && expense.merchant
+                .toUpperCase().indexOf(merchant.toUpperCase()) < 0);
+            })
+            .filter(function(expense) {
+              return !(min && expense.total < min);
+            })
+            .filter(function(expense) {
+              return !(max && expense.total > max);
+            })
+            .filter(function(expense) {
+              if (status && status.length > 0) {
+                return status.indexOf(expense.status) >= 0;
+              } else {
+                return false;
+              }
+            })
+            .filter(function(expense) {
+              if (start) {
+                var startDate = moment(start);
+                return !!(startDate.isValid() && moment(expense.date).isAfter(startDate));
+              } else {
+                return true;
+              }
+            })
+            .filter(function(expense) {
+              if (end) {
+                var endDate = moment(end);
+                return !!(endDate.isValid() && moment(expense.date).isBefore(endDate));
+              } else {
+                return true;
+              }
+            });
+
+          // Sort
+          if (sort) {
+            var sortProperty = sort;
+            var sortDirection = direction || 'desc';
+            var datePattern = /^[0-9]{2}\/[0-9]{2}\/[0-9]{4}$/;
+            result.sort(function(a, b) {
+              var res;
+              if (!isNaN(a[sortProperty])) {
+                res = parseInt(a[sortProperty], 10) - parseInt(b[sortProperty], 10);
+              } else if (datePattern.test(a[sortProperty])) {
+                // Sort dates with moment.js.
+                res = moment(a[sortProperty]).isBefore(moment(b[sortProperty])) ? 1 : -1;
+              } else {
+                // Let's pretend everything that's not a number or date is a string.
+                res = a[sortProperty].localeCompare(b[sortProperty]);
+              }
+
+              if ('desc' === sortDirection) {
+                res *= -1;
+              }
+              return res;
+            });
+          }
+
+          grid.items = result;
+        }
       });
     })();
   </script>
