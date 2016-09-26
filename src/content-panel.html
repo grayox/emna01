@@ -54,12 +54,14 @@
         }
       }
     </style>
+		<!---->
     <items-list id="list"
-								expenses="[[expenses]]"
+								items="[[items]]"
 								filters="[[filters]]">
 		</items-list>
+		<!---->
     <history-panel id="history-panel"
-									 expenses="[[expenses]]"
+									 items="[[items]]"
 									 total-owed="[[totalOwed]]">
 		</history-panel>
   </template>
@@ -67,7 +69,7 @@
     Polymer({
       is: 'content-panel',
       properties: {
-        expenses: Array,
+        items: Array,
         totalOwed: Number,
         filters: Object
       }

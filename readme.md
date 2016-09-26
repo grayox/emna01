@@ -1,3 +1,6 @@
+Expense Manager - Note App (EMNA)
+v1: V(N) ... Integrates (piecemeal) PolymerFire Note App Demo components into Vaadin Expense Manager Shell
+
 # Progressive Web App with full offline capabilities
 
 This is an example project for how you can build a [Progressive Web Application](https://infrequently.org/2015/06/progressive-apps-escaping-tabs-without-losing-our-soul/) with [Polymer](https://www.polymer-project.org/1.0/), [PouchDB](https://pouchdb.com/) and [Vaadin Elements](https://vaadin.com/elements).
@@ -31,3 +34,4 @@ You can build the app with `polymer build`. Other options are listed in the [Pol
 
 ## Note
 The demo uses [Vaadin Charts](https://vaadin.com/charts), which will ask for a license. You can close the window to try out the app without a license.
+# emna01

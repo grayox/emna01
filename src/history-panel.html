@@ -161,7 +161,7 @@
         is: 'history-panel',
 
         properties: {
-          expenses: Array,
+          items: Array,
           seriesData: {
             type: Array,
             notify: true
@@ -169,11 +169,11 @@
         },
 
         observers: [
-          'update(expenses.*)'
+          'update(items.*)'
         ],
 
         update: function() {
-          var expenses = this.expenses;
+          var items = this.items;
 
           function findMonth(rawDate, history) {
             var date = moment(rawDate);
@@ -205,22 +205,24 @@
           var history = [];
           var oneYearAgo = moment().subtract(1, 'years');
 
-          expenses.filter(function(expense) {
-            return moment(expense.date).isAfter(oneYearAgo);
-          }).forEach(function(expense) {
-            findMonth(expense.date, history).total += expense.total;
+          items.filter(function(item) {
+            return moment(item.date).isAfter(oneYearAgo);
+          }).forEach(function(item) {
+            findMonth(item.date, history).total += item.total;
           });
 
           this.seriesData = history.map(function(month) {
             return month.total;
           });
 
+					/** /
           this.async(function() {
             this.$.barchart.chart.xAxis[0].setCategories(history.map(getHistoryLabel));
             this.$.barchart.chart.reflow();
             this.$.columnchart.chart.xAxis[0].setCategories(history.map(getHistoryLabel));
             this.$.columnchart.chart.reflow();
           }, 50);
+					/**/
 
         }
 

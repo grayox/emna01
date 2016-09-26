@@ -326,7 +326,7 @@
         },
 
         _getCaption: function(item) {
-					if (item.id/*$key*/) {
+					if (item.$key) {
             return 'Edit Item';
           } else {
             return 'Add Item';
@@ -432,8 +432,6 @@
 
 				open: function(item) {
 					
-					console.log('item', item);
-					
 					// Edit // PolyFire/na-editor.html
 					/** /
           this._setOpened(true);
@@ -445,7 +443,7 @@
 					  //this.transitionInFrom(item.getBoundingClientRect());
 			  	// endEdit
 
-						/**/
+						/** /
 						// Edit
 						if (item.$key) {
 							item.id = item.$key
@@ -458,7 +456,6 @@
 						/**/
 						// Create a copy of the item to be edited so we don't automatically flush changes to db
 						this.item = JSON.parse(JSON.stringify(item));
-					  console.log('this.item', this.item);
 
 						// File objects don't survive the JSON dance, so copy that over manually
 						if (item._attachments) {
